@@ -26,7 +26,8 @@ function testCart(){
     }else{
         const pannierVide = document.createElement("p");
         cartItems.appendChild(pannierVide);
-        pannierVide.textContent = "Votre pannier est vide, Veuillez sélectionner au moins un article.";   
+        pannierVide.textContent = "Votre pannier est vide, Veuillez sélectionner au moins un article.";  
+        cart = null; 
     };
 }
 
@@ -215,13 +216,186 @@ function deleteProduct(){
             PrintTotal();     
         })
         // console.log('pour voir le nbr de tour');        
-    })
-    
+    })    
 }
 
 // ************  Fin ************  //
 //  si il faut appeler les produits par groupes 
 // let orderAlpha = cart.sort((a,b) => a.name.localeCompare(b.name))
-
 //  ****************  FORMULAIRE *************************  //
+let contact = {
+    firstName : "",
+    lastName : "",
+    address : "",
+    city : "",
+    email : ""
+};
 
+let validBox = false;
+// regex pour FirstName et LastName
+let regexName = /^[a-zA-ZÂÀÈÉËÏÎéèëêïî'\s-][a-zA-ZÂÀÈÉËÏÎéèëêïîôç'\s-]{2,60}$/;
+
+// *****FirstName
+const firstName = document.getElementById("firstName");
+const FN_error = document.getElementById("firstNameErrorMsg")
+const FN_msg = " du prénom ";
+
+firstName.addEventListener("change", function () {
+    validationForm(this, regexName, FN_error, FN_msg);
+    if (validBox === false){
+        contact.firstName = "";
+    }else{
+        contact.firstName = this.value;       
+    }
+});
+
+// *****LastName
+const lastName = document.getElementById("lastName");
+const LN_error = document.getElementById("lastNameErrorMsg");
+const LN_msg = " du nom ";
+
+lastName.addEventListener("change", function () {
+    validationForm(this, regexName, LN_error, LN_msg);
+    if (validBox === false){
+        contact.lastName = "";
+    }else{
+        contact.lastName = this.value;        
+    }
+});
+
+// *****Address
+const address = document.getElementById("address");
+const AddressError = document.getElementById("addressErrorMsg");
+let AddressRegex = /^[a-zA-ZÂÀÈÉËÏÎéèëêïî0-9][0-9a-zA-Zàéèëêïîôç'\s-]{5,100}$/;
+const AddressMsg = " de l'adresse ";
+
+address.addEventListener("change", function () {
+    validationForm(this, AddressRegex, AddressError, AddressMsg);
+    if (validBox === false){
+        contact.address = "";
+    }else{
+        contact.address = this.value;       
+    }
+});
+
+// *****city
+const city = document.getElementById("city");
+const cityError = document.getElementById("cityErrorMsg")
+let cityRegex = /^[a-zA-ZÂÀÈÉËÏÎéèëêïî][a-zA-Zàéèëêïîôç'\s-]{2,100}$/;
+const cityMsg = " de la ville ";
+
+city.addEventListener("change", function () {
+    validationForm(this, cityRegex, cityError, cityMsg);
+    if (validBox === false){
+        contact.city = "";
+    }else{
+        contact.city = this.value;      
+    }
+});
+
+// *****email
+const email = document.getElementById("email");
+const emailError = document.getElementById("emailErrorMsg")
+let emailRegex = /^[a-zA-Z0-9._-]+[@]{1}[a-zA-Z0-9._-]+[.]{1}[a-z]{2,10}$/;
+const emailMsg = " de l'email ";
+
+email.addEventListener("change", function () {
+    validationForm(this, emailRegex, emailError, emailMsg);
+    if (validBox === false){
+        contact.email = "";
+    }else{
+        contact.email = this.value;       
+    }
+});
+
+// ************Fonction de validation de la saisie du formulaire*******//
+function validationForm(a, b, c, d) {
+    let Regex = b;  
+    if (!Regex.test(a.value)) {
+      const ErrorMsg = c;
+      ErrorMsg.textContent = "La saisie" + d + "n'est pas valide";
+      validBox = false;
+      return validBox;
+    } else {
+      const ErrorMsg = c;
+      ErrorMsg.textContent = "";
+      validBox = true;
+      return validBox;
+    }
+}
+
+// recup array strin ID ====> incompréhension pk on envoi pas la quantité et la couleur ???
+let products = [];
+function ArrayID(){
+    for (i in cart){
+        if (cart[i].Id){
+            products.push(cart[i].Id)
+        }
+    }
+}
+
+ArrayID();
+// test les si l'object contact est remplis ou pas 
+function testcontact(){
+    let z = Object.values(contact);
+    let y = 0;
+    console.log(z);
+    for (i in z){
+        if(z[i] === null || z[i] === undefined || z[i] === ''){
+            y = -1;
+            // bloque tout 
+        }else{
+            y +=1
+        }
+    }
+    console.log(y);
+    if ( y === 5){
+        send();
+    }
+}
+// *************Fonction d'envoi des données **********//
+
+// 1- recup arrayProduct = boite / 2- recup Objetcontact / 3- vérifie les id 
+
+// const ApiPost = "http://localhost:3000/api/order/";
+const order = document.getElementById("order");
+
+order.addEventListener('click', function(e){
+    e.preventDefault();
+    console.log('coucou');
+    if (cart){
+        console.log('test le contact if cart ok')
+        testcontact()
+    }else{
+        alert('Votre panier est vide, veuillez choisir au moins un produit');
+    }
+});
+
+function send() {
+    console.log('je debute la fonction send')
+    fetch("http://localhost:3000/api/products/order", {
+      method: "POST",
+      headers: {
+        'Accept': 'application/json', 
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({products,contact})
+    })
+    .then(function(res) {
+      if (res.ok) {
+        console.log(res);
+        return res.json();
+      }
+    })
+    .then(function(value) {
+      console.log(value);
+      let x = value.orderId;
+      console.log(x);
+    //   Est ce qu'un message avec un temps de lantence avant la redirection (ex : settimeout)???
+      window.location.href = `confirmation.html?id=${x}`;
+    })
+    .catch(function(err) {
+        console.log("Une erreur est survenue dans l'envoi de la commande!!");
+        console.log(err);
+    });
+}
