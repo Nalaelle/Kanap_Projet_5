@@ -1,6 +1,5 @@
 const urlProduit = "http://localhost:3000/api/products";
 let items = document.getElementById("items");
-
 // Récupération des données du Back-end
 
 fetch(urlProduit)
@@ -37,7 +36,7 @@ function parcourRes(value) {
         let description = document.createElement("p");
         article.appendChild(description);
 
-        link.setAttribute("href",`./product.html?id=${value[i]._id}`);
+        link.setAttribute("href",`./product.html?id=${value[i]._id}`);// ce lien redirige vers la page produit correspondante
         img.setAttribute("src",value[i].imageUrl);
         img.setAttribute("alt",value[i].altTxt);
 

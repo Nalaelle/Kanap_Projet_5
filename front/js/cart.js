@@ -1,4 +1,4 @@
-//**************  Declaration des élements *******************//
+//**************  Declaration des élements Url api etc ... *******************//
 const urlProduit = "http://localhost:3000/api/products";
 const cartItems = document.getElementById('cart__items');
 
@@ -15,8 +15,8 @@ class produit {
     }
 };
 
-let boite = [];
-let cart = getCart();
+let boite = []; // boite qui sert à stocker les information du produit (prix) récuperer à partir du bac
+let cart = getCart(); // cart recupere le tableau du LS
 testCart();
 
 //**************  Check LS *******************//
@@ -61,11 +61,10 @@ function articlePrint(products){
 }
 
 //  1- pousser le tableau dans le localstorage ******************************
-function saveCart(cart){  
-    // console.log(cart);
+function saveCart(cart){
     return localStorage.setItem('cart',JSON.stringify(cart));
 }
-//  2- recuperer du localstorage ********************************************
+//  2- recuperer le tableau du localstorage ********************************************
 function getCart(){
     let cart = localStorage.getItem('cart');
     if (cart == null){ return [];}
@@ -148,8 +147,7 @@ function updateQty(arg, newValue){
     const produit = arg;
     const idProd = produit.id;
     const colorProd = produit.color;
-    produit.Qty = newValue;
-    console.log(produit.Qty);
+    produit.Qty = newValue;   
     if (produit.Qty > 0 && produit.Qty <= 100 ){
         for (i in cart){
             if (cart[i].Id === idProd && cart[i].Color === colorProd){
@@ -160,10 +158,9 @@ function updateQty(arg, newValue){
                 }
             }
         }
-        PrintTotal();
+        PrintTotal(); // recalcule le total
     }else{
         alert("La quantité choisie n'est pas valide");
-        console.log('on fait le else');
         for (i in cart){
             if (cart[i].Id === idProd && cart[i].Color === colorProd){
                 cart[i].Quantity = 1;
@@ -173,7 +170,7 @@ function updateQty(arg, newValue){
                 }
             }
         }
-        PrintTotal();
+        PrintTotal();  // recalcule le total
     };    
 }
 
@@ -213,16 +210,13 @@ function deleteProduct(){
                     boite.splice(x,1);
                 }
             };
-            PrintTotal();     
-        })
-        // console.log('pour voir le nbr de tour');        
+            PrintTotal(); // recalcule le total
+        })// console.log('pour voir le nbr de tour');                
     })    
 }
+// ************  Fin d'affichage du panier ***************  //
 
-// ************  Fin ************  //
-//  si il faut appeler les produits par groupes 
-// let orderAlpha = cart.sort((a,b) => a.name.localeCompare(b.name))
-//  ****************  FORMULAIRE *************************  //
+//  ****************  FORMULAIRE *************************  //  Vérification des champs un par un / affiche un message personnalisé
 let contact = {
     firstName : "",
     lastName : "",
@@ -237,7 +231,7 @@ let regexName = /^[a-zA-ZÂÀÈÉËÏÎéèëêïî'\s-][a-zA-ZÂÀÈÉËÏÎé�
 
 // *****FirstName
 const firstName = document.getElementById("firstName");
-const FN_error = document.getElementById("firstNameErrorMsg")
+const FN_error = document.getElementById("firstNameErrorMsg");
 const FN_msg = " du prénom ";
 
 firstName.addEventListener("change", function () {
@@ -315,7 +309,7 @@ function validationForm(a, b, c, d) {
       const ErrorMsg = c;
       ErrorMsg.textContent = "La saisie" + d + "n'est pas valide";
       validBox = false;
-      return validBox;
+      return validBox; // est ce que je peux enlever les return
     } else {
       const ErrorMsg = c;
       ErrorMsg.textContent = "";
@@ -324,7 +318,7 @@ function validationForm(a, b, c, d) {
     }
 }
 
-// recup array strin ID ====> incompréhension pk on envoi pas la quantité et la couleur ???
+// recup array string ID ====> incompréhension pourquoi on envoi pas la quantité et la couleur des produits ???
 let products = [];
 function ArrayID(){
     for (i in cart){
@@ -333,39 +327,30 @@ function ArrayID(){
         }
     }
 }
-
 ArrayID();
-// test les si l'object contact est remplis ou pas 
+// test si l'object contact est rempli ou pas  avec un compteur (y)
 function testcontact(){
-    let z = Object.values(contact);
-    let y = 0;
-    console.log(z);
+    let z = Object.values(contact); // console.log(z);
+    let y = 0;    
     for (i in z){
         if(z[i] === null || z[i] === undefined || z[i] === ''){
-            y = -1;
-            // bloque tout 
+            y = -1;// bloque tout             
         }else{
             y +=1
         }
-    }
-    console.log(y);
-    if ( y === 5){
+    }   
+    if ( y === 5){ // valide et appel la fonction d'envoi au back
         send();
     }
 }
 // *************Fonction d'envoi des données **********//
 
-// 1- recup arrayProduct = boite / 2- recup Objetcontact / 3- vérifie les id 
-
-// const ApiPost = "http://localhost:3000/api/order/";
+// 1- recup cart / 2- recup Objetcontact / 3- verifie les saisies / 4- envoie les données et récup l'orderId 
 const order = document.getElementById("order");
-
 order.addEventListener('click', function(e){
     e.preventDefault();
-    console.log('coucou');
     if (cart){
-        console.log('test le contact if cart ok')
-        testcontact()
+        testcontact();
     }else{
         alert('Votre panier est vide, veuillez choisir au moins un produit');
     }
@@ -383,16 +368,20 @@ function send() {
     })
     .then(function(res) {
       if (res.ok) {
-        console.log(res);
         return res.json();
       }
     })
     .then(function(value) {
-      console.log(value);
       let x = value.orderId;
-      console.log(x);
-    //   Est ce qu'un message avec un temps de lantence avant la redirection (ex : settimeout)???
-      window.location.href = `confirmation.html?id=${x}`;
+      if (confirm('Vous allez être rediriger sur la page de confirmation')){
+        setTimeout(() => {
+            console.log('redirection ok');
+            window.location.href = `confirmation.html?id=${x}`;
+            localStorage.clear();
+          }, 1000)
+      }else{
+        console.log('stay here')
+      }
     })
     .catch(function(err) {
         console.log("Une erreur est survenue dans l'envoi de la commande!!");
