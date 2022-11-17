@@ -74,24 +74,25 @@ function validation(){
     let Qty = cart.Quantity;
     let validCart;
 
-    if ( Qty === NaN || cart.Color === 'color' || cart.Color === ''){
-    validCart = false;
-    }else{
-        if (Qty < 1 || Qty > 100 || Qty == 0){
-            validCart = false;
-        }else{        
-            if (cart.Quantity === undefined || cart.Color === undefined){
-                validCart = false;
-            }else{        
-                validCart = true;
+    if ( isNaN(Qty) || Qty < 1 || Qty > 100 || Qty == 0 || Qty === null || cart.Quantity === undefined){
+        console.log("test qty ");
+        validCart = false;
+        
+    } else if (cart.Color === 'color' || cart.Color === '' || cart.Color === undefined){
+        console.log("test color");
+        validCart = false;
+            
+        } else {  
+            console.log(validCart)      
+            validCart = true;
             }
-        }
-    }
+
+            console.log(validCart)
     if (validCart){
         alert('Votre couleur et votre quantité sont validées');
         return validCart;
     }else{
-        alert('nooooooooooon');
+        alert("Votre selection de couleur ou de quantité n'est pas valide");
         return validCart;
     }     
 }
