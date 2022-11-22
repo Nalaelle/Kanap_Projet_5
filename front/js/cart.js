@@ -349,7 +349,7 @@ function testcontact(){
 const order = document.getElementById("order");
 order.addEventListener('click', function(e){
     e.preventDefault();
-    if (cart){
+    if (cart && cart.length != 0){
         testcontact();
     }else{
         alert('Votre panier est vide, veuillez choisir au moins un produit');

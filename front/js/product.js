@@ -111,7 +111,7 @@ function getCart(){
 // ecoute le bouton "ajouter au panier"
 const button = document.getElementById('addToCart');
 button.addEventListener('click',function listenButton(){
-    let X = objectCart;
+    let X = objectCart; // verif utilité !!!
     if (validation(X)){
         cart = getCart();
         checkProduct(X);   
@@ -121,18 +121,28 @@ button.addEventListener('click',function listenButton(){
 // 3- inserer l'objet dans le tableau => LS //
 function checkProduct(){
     cart = getCart();
-    let X = objectCart;
-    let test = false;
+    let X = objectCart; // pas besoin ??
+    let test = false; // vérifie si un produit identique est déjà présent dans le Ls
+    let stopFunction = true; // stop le fonctionnement si la quantité totale est superieur à 100
     cart.forEach(element => {      
         if (element.Id === X.Id && element.Color === X.Color){
-            element.Quantity = element.Quantity + X.Quantity
-            test = true;        
-        }      
+            element.Quantity = element.Quantity + X.Quantity  // remplacer par un plus egal +=
+            if (element.Quantity < 101){
+                test = true;
+            }else{
+                stopFunction = false; // stop le fonctionnement 
+                console.log("total Quantité superieur à 100");
+                alert("votre quantité totale dépasse 100 produits les stocks ne sont pas disponibles");
+                }     
+        }
+              
     });
-    if (test){        
-        saveCart(cart); 
-    }else{     
-        cart.push(X);  
-        saveCart(cart); 
+    if(stopFunction) {
+        if (test){        
+            saveCart(cart); 
+        }else{     
+            cart.push(X);  
+            saveCart(cart); 
+        }
     }  // console.log(test)      
 };
