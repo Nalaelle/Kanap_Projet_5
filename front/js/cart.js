@@ -1,4 +1,4 @@
-//**************  Declaration des élements Url api etc ... *******************//
+// Déclaration des élements Url API / Premier noeud du DOM / Class > créateur de produit
 const urlProduit = "http://localhost:3000/api/products";
 const cartItems = document.getElementById('cart__items');
 
@@ -15,11 +15,11 @@ class produit {
     }
 };
 
-let boite = []; // boite qui sert à stocker les information du produit (prix) récuperer à partir du bac
+let boite = []; // boite qui sert à stocker les information des produits
 let cart = getCart(); // cart recupere le tableau du LS
 testCart();
 
-//**************  Check LS *******************//
+// Fonction qui test si LS est vide ou non 
 function testCart(){
     if (cart[0] != null){
         recupData();             
@@ -31,7 +31,11 @@ function testCart(){
     };
 }
 
-//**************  Récupère les données du back end en fonction des produit du LS *******************//
+/* Fonction qui va effectuer fetch pour chaque élément du LS
+    fetch return un nouvel objet "  product "
+    => qui est pousser dans la " boite "
+    => qui est passer en argument de la fonction articlePrint()
+*/
 function recupData(){
     cart = getCart();
     for (let i of cart){     
@@ -53,25 +57,28 @@ function recupData(){
     }
 }
 
-//**************  Fonction qui affiche les produits du panier et appel les autres fonctions nécessaires *******************//
+//Fonction qui appel toutes les autres nécessaire à l'affichage de chaque produit 
 function articlePrint(products){
         articleChoice(products);
         deleteProduct();
         PrintTotal();  
 }
 
-//  1- pousser le tableau dans le localstorage ******************************
+// Pousser le tableau dans le localStorage
 function saveCart(cart){
     return localStorage.setItem('cart',JSON.stringify(cart));
 }
-//  2- recuperer le tableau du localstorage ********************************************
+// Récuperer le tableau du localStorage
 function getCart(){
     let cart = localStorage.getItem('cart');
     if (cart == null){ return [];}
     else {return JSON.parse((cart));};    
 }
 
-//**************  Créer les produits dans le HTML  *******************//
+/* Fonction qui créer les élément du DOM pour chaque produit
+    paramétre : " product " => objet créer dans la fonction rcupData()
+    + écoute de l'input quantité
+*/
 function articleChoice(arg){
         let article = document.createElement("article");
         cartItems.appendChild(article);
@@ -138,11 +145,12 @@ function articleChoice(arg){
         divDelete.appendChild(pDelete);
         pDelete.classList.add("deleteItem");
         pDelete.textContent = "Supprimer";
-    // ********************** Ecoute de la quantité ********************************************        
+
+    // Ecoute de la quantité, argument donné : " product " , nouvelle quantité   
         inputQ.addEventListener("input", () => updateQty(arg, parseInt(inputQ.value)));
 }
 
-//**************  Fonction qui met à jour la quantité dans LS et boite *******************//
+// Fonction qui met à jour la quantité dans LS et " boite "
 function updateQty(arg, newValue){
     const produit = arg;
     const idProd = produit.id;
@@ -174,7 +182,7 @@ function updateQty(arg, newValue){
     };    
 }
 
-//**********Fonction qui affiche le prix total et la Q total *******************//
+// Fonction qui calcul et affiche le prix total et la Quantité total 
 function PrintTotal(){
     let totalPrice = 0;
     let totalQuantity = 0;
@@ -192,9 +200,9 @@ function PrintTotal(){
     totalQ.textContent = totalQuantity;
 }
 
-//**************  Fonction qui supprime un produit *******************//
+// Fonction qui supprime un produit
 function deleteProduct(){
-    const btnDelete = document.querySelectorAll(".deleteItem");
+    const btnDelete = document.querySelectorAll(".deleteItem"); // récupération du noeud correspondant
     btnDelete.forEach((btn) => {
         btn.addEventListener("click", function(){            
             const article = btn.closest(".cart__item");           
@@ -211,12 +219,13 @@ function deleteProduct(){
                 }
             };
             PrintTotal(); // recalcule le total
-        })// console.log('pour voir le nbr de tour');                
-    })    
+        })              
+    })   
 }
-// ************  Fin d'affichage du panier ***************  //
+/* ***********  Fin d'affichage du panier *************** 
 
-//  ****************  FORMULAIRE *************************  //  Vérification des champs un par un / affiche un message personnalisé
+****************  FORMULAIRE *************************  
+ Déclaration de l'objet contact  */
 let contact = {
     firstName : "",
     lastName : "",
@@ -226,101 +235,72 @@ let contact = {
 };
 
 let validBox = false;
-// regex pour FirstName et LastName
+
+// regex 
 let regexName = /^[a-zA-ZÂÀÈÉËÏÎéèëêïî'\s-][a-zA-ZÂÀÈÉËÏÎéèëêïîôç'\s-]{2,60}$/;
+let regexAddress = /^[a-zA-ZÂÀÈÉËÏÎéèëêïî0-9][0-9a-zA-Zàéèëêïîôç'\s-]{5,100}$/;
+let regexCity = /^[a-zA-ZÂÀÈÉËÏÎéèëêïî][a-zA-Zàéèëêïîôç'\s-]{2,100}$/;
+let regexEmail = /^[a-zA-Z0-9._-]+[@]{1}[a-zA-Z0-9._-]+[.]{1}[a-z]{2,10}$/;
 
-// *****FirstName
-const firstName = document.getElementById("firstName");
-const FN_error = document.getElementById("firstNameErrorMsg");
-const FN_msg = " du prénom ";
+validateField("firstName", "firstNameErrorMsg", regexName, " du prénom "); 
+validateField("lastName", "lastNameErrorMsg", regexName, " du nom ");
+validateField("address", "addressErrorMsg", regexAddress, " de l'adresse ");
+validateField("city", "cityErrorMsg", regexCity, " de la ville ");
+validateField("email", "emailErrorMsg", regexEmail, " de l'email ");
 
-firstName.addEventListener("change", function () {
-    validationForm(this, regexName, FN_error, FN_msg);
-    if (validBox === false){
-        contact.firstName = "";
-    }else{
-        contact.firstName = this.value;       
-    }
-});
+// Fonction -> récupére les éléments du DOM / écoute l'évenement / appel les fonction suivante
+function validateField(id, errorMsgId, regexString, messageError) {
+    const element = document.getElementById(id);
+    const errorElement = document.getElementById(errorMsgId);
+    
+    element.addEventListener("change", function () {
+        validationForm(this, regexString, errorElement, messageError);
+        if (validBox === false){
+            setContactValue(id, "")
+        }else{
+            setContactValue(id, this.value)      
+        }
+    });
 
-// *****LastName
-const lastName = document.getElementById("lastName");
-const LN_error = document.getElementById("lastNameErrorMsg");
-const LN_msg = " du nom ";
+}
 
-lastName.addEventListener("change", function () {
-    validationForm(this, regexName, LN_error, LN_msg);
-    if (validBox === false){
-        contact.lastName = "";
-    }else{
-        contact.lastName = this.value;        
-    }
-});
-
-// *****Address
-const address = document.getElementById("address");
-const AddressError = document.getElementById("addressErrorMsg");
-let AddressRegex = /^[a-zA-ZÂÀÈÉËÏÎéèëêïî0-9][0-9a-zA-Zàéèëêïîôç'\s-]{5,100}$/;
-const AddressMsg = " de l'adresse ";
-
-address.addEventListener("change", function () {
-    validationForm(this, AddressRegex, AddressError, AddressMsg);
-    if (validBox === false){
-        contact.address = "";
-    }else{
-        contact.address = this.value;       
-    }
-});
-
-// *****city
-const city = document.getElementById("city");
-const cityError = document.getElementById("cityErrorMsg")
-let cityRegex = /^[a-zA-ZÂÀÈÉËÏÎéèëêïî][a-zA-Zàéèëêïîôç'\s-]{2,100}$/;
-const cityMsg = " de la ville ";
-
-city.addEventListener("change", function () {
-    validationForm(this, cityRegex, cityError, cityMsg);
-    if (validBox === false){
-        contact.city = "";
-    }else{
-        contact.city = this.value;      
-    }
-});
-
-// *****email
-const email = document.getElementById("email");
-const emailError = document.getElementById("emailErrorMsg")
-let emailRegex = /^[a-zA-Z0-9._-]+[@]{1}[a-zA-Z0-9._-]+[.]{1}[a-z]{2,10}$/;
-const emailMsg = " de l'email ";
-
-email.addEventListener("change", function () {
-    validationForm(this, emailRegex, emailError, emailMsg);
-    if (validBox === false){
-        contact.email = "";
-    }else{
-        contact.email = this.value;       
-    }
-});
-
-// ************Fonction de validation de la saisie du formulaire*******//
-function validationForm(a, b, c, d) {
-    let Regex = b;  
-    if (!Regex.test(a.value)) {
-      const ErrorMsg = c;
-      ErrorMsg.textContent = "La saisie" + d + "n'est pas valide";
+// Fonction de validation de la saisie du formulaire / affiche un message d'erreur personnalisé
+function validationForm(currentComponent, regex, componentError, errorMsg) {
+    let Regex = regex;  
+    if (!Regex.test(currentComponent.value)) {
+      const ErrorMsg = componentError;
+      ErrorMsg.textContent = "La saisie" + errorMsg + "n'est pas valide";
       validBox = false;
-      return validBox; // est ce que je peux enlever les return
+      return validBox;
     } else {
-      const ErrorMsg = c;
+      const ErrorMsg = componentError;
       ErrorMsg.textContent = "";
       validBox = true;
       return validBox;
     }
 }
+// Fonction -> permet d'attribuer la bonne valeur à l'objet Contact
+function setContactValue(field, value) {
+    if (field === "firstName"){
+        contact.firstName = value;
+    }
+    if (field === "lastName"){
+        contact.lastName = value;
+    }
+    if (field === "address"){
+        contact.address = value;
+    }
+    if (field === "city"){
+        contact.city = value;
+    }
+    if (field === "email"){
+        contact.email = value;
+    }
+}
 
-// recup array string ID ====> incompréhension pourquoi on envoi pas la quantité et la couleur des produits ???
+// Déclaration du tableau comprenant les ID produits
 let products = [];
-function ArrayID(){
+function ArrayID(){ 
     for (i in cart){
         if (cart[i].Id){
             products.push(cart[i].Id)
@@ -328,9 +308,10 @@ function ArrayID(){
     }
 }
 ArrayID();
+
 // test si l'object contact est rempli ou pas  avec un compteur (y)
 function testcontact(){
-    let z = Object.values(contact); // console.log(z);
+    let z = Object.values(contact);
     let y = 0;    
     for (i in z){
         if(z[i] === null || z[i] === undefined || z[i] === ''){
@@ -339,13 +320,18 @@ function testcontact(){
             y +=1
         }
     }   
-    if ( y === 5){ // valide et appel la fonction d'envoi au back
+    if ( y === 5){ // valide et appel la fonction d'envoi des données à l'API
         send();
+    }else{
+        alert("Il manque des informations dans le formulaire. Veillez à remplir tous les champs");
     }
 }
-// *************Fonction d'envoi des données **********//
 
-// 1- recup cart / 2- recup Objetcontact / 3- verifie les saisies / 4- envoie les données et récup l'orderId 
+/* Récupération noeud du DOM 
+    Ecoute du bouton " commander "
+    vérifie la présence d'un produit au minimum dans le LS
+    informe l'utilisateur si le panier est vide
+*/
 const order = document.getElementById("order");
 order.addEventListener('click', function(e){
     e.preventDefault();
@@ -356,8 +342,11 @@ order.addEventListener('click', function(e){
     }
 });
 
+/* Fonction d'envoi des données
+    fetch avec le verbe post => envoi de données
+    information utilisateur : propose une redirection sur la page confirmation     
+*/
 function send() {
-    console.log('je debute la fonction send')
     fetch("http://localhost:3000/api/products/order", {
       method: "POST",
       headers: {
