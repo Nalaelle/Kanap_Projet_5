@@ -1,4 +1,12 @@
 # Kanap #
+Projet 5 de la formation développeur web Openclassrooms 
+
+Rendre dynamique l'affichage des produits du site grâce au JS vanilla.
+Les spécifications ne permettent pas l'utilisation de librairie externes pour le front du projet. 
+
+Utilisation de l'api Fetch pour récupéré les données en format JSON et du local storage pour conserver le choix utilisateur.
+
+Vous aurez besoin de npm pour installer les dépendances du projet.
 
 This is the front end and back end server for Project 5 of the Web Developer path.
 
